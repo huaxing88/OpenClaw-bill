@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # 后端服务
+  backend:
+    build:
+      context: .
+      dockerfile: img2ledger_poc_service/Dockerfile
+    container_name: img2ledger-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app/src
+      - DISABLE_MODEL_SOURCE_CHECK=True
+    volumes:
+      # 持久化上传和输出文件
+      - backend_storage:/app/web_storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # 前端服务
+  frontend:
+    build:
+      context: ./img2ledger-web
+      dockerfile: Dockerfile
+    container_name: img2ledger-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  backend_storage:
+    driver: local

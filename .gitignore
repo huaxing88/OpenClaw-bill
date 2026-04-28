@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+
+# Runtime uploads & outputs
+web_storage/
+
+# Node
+node_modules/
+dist/
+.npm/
+package-lock.json
+
+# OpenClaw internal
+.openclaw/
+.clawhub/
+
+# Temp & logs
+temp/
+logs/
+
+# Archives & large binaries
+*.zip
+*.tar.gz
+*.mp4
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

@@ -1,0 +1,36 @@
+services:
+  app:
+    image: ghcr.io/vas3k/taxhacker:latest
+    ports:
+      - "0.0.0.0:7331:7331"
+    environment:
+      - NODE_ENV=production
+      - SELF_HOSTED_MODE=true
+      - UPLOAD_PATH=/app/data/uploads
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/taxhacker
+      - BETTER_AUTH_SECRET=taxhacker-secret-key-please-change-in-production
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    logging:
+      driver: "local"
+      options:
+        max-size: "100M"
+        max-file: "3"
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=taxhacker
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    logging:
+      driver: "local"
+      options:
+        max-size: "100M"
+        max-file: "3"

@@ -1,0 +1,9 @@
+paddleocr
+paddlepaddle
+opencv-python
+pandas
+openpyxl
+pyyaml
+fastapi
+uvicorn
+python-multipart

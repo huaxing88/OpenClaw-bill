@@ -1,0 +1,60 @@
+extends: "default.yml"
+
+# 适配“每日账单图片”的列结构与业务规则
+layout:
+  # 以图片宽度为基准（0~1），按列切分：客户名 | 品名+只数 | (斤,单价,销售额) | 收款方式/红勾
+  # 可按你的实际拍照/纸张微调
+  column_x_splits: [0.20, 0.52, 0.86]
+  header_ignore_y: 0.12   # 顶部12%忽略（Memo/Date/星期）
+  anchor_header_ignore_y: 0.04  # 锚点列(算式)只忽略更小表头
+  # V3：按列裁剪OCR + 以算式列为锚点拼装行
+  strategy: "column_ocr"  # v2_whole_ocr | column_ocr
+  anchor_col: "formula"
+  min_anchor_blocks: 5
+  column_margin_px: 40
+
+  # V4：自适应列切分（用于拍照偏移/倾斜导致的列漂移）
+  auto_splits:
+    enabled: true
+    expected_splits: [0.20, 0.52, 0.86]
+    search_window: 0.10
+    smooth_kernel: 31
+    center_penalty: 0.25
+
+payment:
+  red_checkmark_means_paid: true
+  checkmark_default_method: "微信"   # 只有红勾没有“微/支”时的默认
+  method_map:
+    "微": "微信"
+    "支": "支付宝"
+    "现": "现金"
+    "现金": "现金"
+
+business_rules:
+  # 扣款/优惠：量/斤*单价 的小数部分作为扣款（写入负数）
+  discount_from_fractional_part: true
+  discount_negative: true
+
+skip_pages:
+  # 3-27-2.jpg 底部红色汇总块：红像素占比过高则跳过/或只取上半部
+  red_summary_skip:
+    enabled: true
+    bottom_ratio: 0.55         # 取底部55%区域检测
+    red_pixel_ratio_thresh: 0.005
+    action: "crop_top"         # skip | crop_top
+
+customer_mapping:
+  enabled: true
+  # 由人工表客户名称列生成（除散客外）；文件若不存在则忽略
+  name_list_path: "rules/customer_names_2603.txt"
+  keep_raw_if_not_found: true
+  # 简单包含匹配/最长优先
+  match_strategy: "contains_longest"
+
+# M1：第二列（品名+量/只）字典约束
+product_column:
+  enabled: true
+  product_name_list_path: "rules/product_names.txt"
+  match_strategy: "contains_longest_then_edit_distance"
+  edit_distance_max: 2
+  keep_raw_if_not_found: true

@@ -1,0 +1,64 @@
+version: 1
+
+normalize:
+  multiply_symbols: ["x", "X", "×"]
+  equals_symbols: ["=", "＝"]
+  colon_symbols: [":", "："]
+  remove_spaces: true
+
+excel:
+  date_origin: "excel_1900"
+
+batch_defaults:
+  receipt_date_strategy: "same_as_sale_date"
+  order_no_strategy:
+    type: "date_prefix_seq"
+    seq_start: 10000
+
+fields:
+  amount_tolerance: 2
+  amount_rounding: "int"
+  receivable_strategy: "same_as_sales"
+
+patterns:
+  formula:
+    - name: "jin_price_amount"
+      regex: "(?P<jin>\\d+(?:\\.\\d+)?)\\s*[x×X]\\s*(?P<price>\\d+(?:\\.\\d+)?)\\s*[=＝]\\s*(?P<amount>\\d+(?:\\.\\d+)?)"
+
+  subtotal:
+    - name: "subtotal"
+      regex: "(?:小计|合计|总计)\\s*[：:]\\s*(?P<subtotal>\\d+(?:\\.\\d+)?)"
+
+lexicons:
+  payment_method:
+    "现金": "现金"
+    "微信": "微信"
+    "支付宝": "支付宝"
+    "银行卡": "银行卡"
+    "收": "微信"
+    "支": "现金"
+
+  product_alias:
+    "龙": "澳纽龙-沃龙"
+    "直虾": "澳纽龙-直虾"
+    "直纹": "澳纽龙-直虾"
+    "帝王": "帝王蟹"
+    "帝王蟹": "帝王蟹"
+
+parsing:
+  customer:
+    strategy: "prefix_token"
+    max_len: 10
+
+  product:
+    strategy: "between_customer_and_formula"
+
+  ratio_token:
+    enabled: true
+    semantics_default: "unknown"
+
+output:
+  review_columns:
+    - ocr_raw_line
+    - parse_confidence
+    - validation_flags
